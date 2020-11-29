@@ -1,17 +1,18 @@
 import sqlite3
 import sys
 
-from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QWidget
 from PyQt5.QtWidgets import QMessageBox
+from main_design import Ui_MainWindow
+from addEditCoffeeForm import Ui_Form
 
 
-class CafeCoffee(QMainWindow):
+class CafeCoffee(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.id = 1
-        uic.loadUi('main.ui', self)
+        self.setupUi(self)
         self.initUI()
 
     def initUI(self):
@@ -25,7 +26,7 @@ class CafeCoffee(QMainWindow):
         self.initialization()
 
     def initialization(self):
-        connection = sqlite3.connect("coffee.sqlite")
+        connection = sqlite3.connect("./data/coffee.sqlite")
         cursor = connection.cursor()
         self.data = [list(i) for i in cursor.execute("SELECT * FROM coffee")]
         length = len(self.data)
@@ -56,14 +57,14 @@ class CafeCoffee(QMainWindow):
         self.widget.show()
 
 
-class AddEditCoffee(QWidget):
+class AddEditCoffee(QWidget, Ui_Form):
     def __init__(self, type_, id_):
         super().__init__()
         self.type = type_
         self.id = id_
-        self.connection = sqlite3.connect("coffee.sqlite")
+        self.connection = sqlite3.connect("data/coffee.sqlite")
         self.cursor = self.connection.cursor()
-        uic.loadUi('addEditCoffeeForm.ui', self)
+        self.setupUi(self)
         self.initUI()
 
     def initUI(self):
@@ -143,9 +144,9 @@ class AddEditCoffee(QWidget):
     def add_coffee(self):
         sql_request = "SELECT id FROM coffee WHERE ID = (SELECT MAX(id) FROM coffee)"
         id_ = int(*[str(*i) for i in self.cursor.execute(sql_request)]) + 1
-        sort = self.sort_box.currentIndex()
-        degree = self.degree_box.currentIndex()
-        type = self.type_box.currentIndex()
+        sort = self.sort_box.currentIndex() + 1
+        degree = self.degree_box.currentIndex() + 1
+        type = self.type_box.currentIndex() + 1
         description = self.description_line.text()
         price = self.price_line.text()
         volume = self.volume_line.text()
